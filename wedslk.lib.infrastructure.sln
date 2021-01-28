@@ -3,9 +3,36 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{786E6594-C704-403A-BE9F-1BDBA305C505}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{C89A514A-C5D3-4A5B-B2A1-7984D93F3F31}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wedslk.lib.infrastructure.service.database.cosmos", "Service\Database\wedslk.lib.infrastructure.service.database.cosmos\wedslk.lib.infrastructure.service.database.cosmos.csproj", "{38917F38-FD08-49D3-980C-42010FEED652}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wedslk.lib.infrastructure.service.database", "Service\Database\wedslk.lib.infrastructure.service.database\wedslk.lib.infrastructure.service.database.csproj", "{F291572D-3875-44F2-B539-3EA13A26513D}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{38917F38-FD08-49D3-980C-42010FEED652}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38917F38-FD08-49D3-980C-42010FEED652}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38917F38-FD08-49D3-980C-42010FEED652}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38917F38-FD08-49D3-980C-42010FEED652}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F291572D-3875-44F2-B539-3EA13A26513D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F291572D-3875-44F2-B539-3EA13A26513D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F291572D-3875-44F2-B539-3EA13A26513D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F291572D-3875-44F2-B539-3EA13A26513D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C89A514A-C5D3-4A5B-B2A1-7984D93F3F31} = {786E6594-C704-403A-BE9F-1BDBA305C505}
+		{38917F38-FD08-49D3-980C-42010FEED652} = {C89A514A-C5D3-4A5B-B2A1-7984D93F3F31}
+		{F291572D-3875-44F2-B539-3EA13A26513D} = {C89A514A-C5D3-4A5B-B2A1-7984D93F3F31}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {393C67E7-95DC-43D0-A40C-DA80066A3134}
