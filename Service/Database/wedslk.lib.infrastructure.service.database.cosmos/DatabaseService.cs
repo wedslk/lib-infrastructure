@@ -1,28 +1,64 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace wedslk.lib.infrastructure.service.database.cosmos
 {
     public class DatabaseService<T> : IDatabaseService<T>
     {
+
+        #region Members 
+
         private Container _container;
         private readonly string _partitionKey = String.Empty;
-        public DatabaseService(CosmosClient dbClient, string databaseName, string containerName) 
+        private PartitionKey _partitionKeyValue;
+
+        #endregion
+
+        #region Constructor
+        public DatabaseService(CosmosClient dbClient, string databaseName, string containerName, string partitionKey)
         {
             this._container = dbClient.GetContainer(databaseName, containerName);
+            this._partitionKey = partitionKey;
+        }
+        #endregion
+
+        #region Get
+
+        public async Task<T> GetByIDAsync(string id)
+        {
+            try
+            {
+                ItemResponse<T> response = await this._container.ReadItemAsync<T>(id, new PartitionKey(_partitionKey));
+                return response.Resource;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return default(T);
+            }
         }
 
-        public async Task AddAsync(T item)
+        public async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> whereExpression)
         {
-            await this._container.CreateItemAsync<T>(item, new PartitionKey(_partitionKey));
-        }
+            List<T> results = new List<T>();
+            using (FeedIterator<T> setIterator = this._container.GetItemLinqQueryable<T>()
+                      .Where(whereExpression)
+                      .ToFeedIterator<T>())
+            {
+                //Asynchronous query execution
+                while (setIterator.HasMoreResults)
+                {
+                    var response = await setIterator.ReadNextAsync();
 
-        public async Task DeleteAsync(string id)
-        {
-            await this._container.DeleteItemAsync<T>(id, new PartitionKey(_partitionKey));
+                    results.AddRange(response.ToList());
+                }
+            }
+
+            return results;
         }
 
         public async Task<IEnumerable<T>> GetAsync(string queryString)
@@ -39,22 +75,78 @@ namespace wedslk.lib.infrastructure.service.database.cosmos
             return results;
         }
 
-        public async Task<T> GetItemAsync(string id)
+        #endregion
+
+        #region Add
+
+        public async Task<T> AddAsync(T item)
         {
-            try
+            var result = await this._container.CreateItemAsync<T>(item, this._partitionKeyValue);
+
+            if (result.StatusCode == System.Net.HttpStatusCode.Created) 
             {
-                ItemResponse<T> response = await this._container.ReadItemAsync<T>(id, new PartitionKey(_partitionKey));
-                return response.Resource;
+                return result.Resource;
             }
-            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+
+            return default(T);
+        }
+
+        #endregion
+
+        #region Delete 
+
+        public async Task<bool> DeleteAsync(string id)
+        {
+            var result = await this._container.DeleteItemAsync<T>(id, this._partitionKeyValue);
+
+            if (result.StatusCode == System.Net.HttpStatusCode.OK) 
             {
-                return default(T);
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region Update
+
+        public async Task<T> UpdateAsync(string id, T item)
+        {
+            var result = await this._container.UpsertItemAsync<T>(item, this._partitionKeyValue);
+
+            if (result.StatusCode == System.Net.HttpStatusCode.OK) 
+            {
+                return result.Resource;
+            }
+
+            return default(T);
+        }
+
+        #endregion
+
+        #region  Utility
+
+        public void SetPartitionKeyValue(object value)
+        {
+            string resultValue = value.ToString();
+            double doubleTypeValue = double.MinValue;
+            bool boolTypeValue = false;
+
+            if (double.TryParse(resultValue, out doubleTypeValue))
+            {
+                this._partitionKeyValue = new PartitionKey(doubleTypeValue);
+            }
+            else if (bool.TryParse(resultValue, out boolTypeValue))
+            {
+                this._partitionKeyValue = new PartitionKey(boolTypeValue);
+            }
+            else 
+            {
+                this._partitionKeyValue = new PartitionKey(resultValue);
             }
         }
 
-        public async Task UpdateAsync(string id, T item)
-        {
-            await this._container.UpsertItemAsync<T>(item, new PartitionKey(_partitionKey));
-        }
+        #endregion
     }
 }

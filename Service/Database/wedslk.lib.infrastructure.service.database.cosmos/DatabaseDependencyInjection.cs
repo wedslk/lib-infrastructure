@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -9,16 +10,24 @@ namespace wedslk.lib.infrastructure.service.database.cosmos
 {
     public static class DatabaseClientDependencyInjection
     {
-        private static async Task<IDatabaseService<T>> InitializeDatabaseClientInstanceAsync<T>(IConfigurationSection configurationSection)
+        public static CosmosClient InitializeDatabaseClientInstanceAsync(IConfigurationSection configurationSection)
         {
-            string databaseName = configurationSection.GetSection("DatabaseName").Value;
-            string containerName = configurationSection.GetSection("ContainerName").Value;
+            
             string account = configurationSection.GetSection("Account").Value;
             string key = configurationSection.GetSection("Key").Value;
-            Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
-            IDatabaseService<T> cosmosDbService = new DatabaseService<T>(client, databaseName, containerName);
+
+            return new CosmosClient(account, key);
+        }
+
+        public static async Task<IDatabaseService<T>> InitializeDatabaseEntityInstanceAsync<T>(CosmosClient client, 
+                                                                                                IConfigurationSection configurationSection,
+                                                                                                string databaseName,
+                                                                                                string containerName,
+                                                                                                string partitionKey)
+        {
+            IDatabaseService<T> cosmosDbService = new DatabaseService<T>(client, databaseName, containerName, partitionKey);
             Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-            await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");
+            await database.Database.CreateContainerIfNotExistsAsync(containerName, partitionKey);
 
             return cosmosDbService;
         }
