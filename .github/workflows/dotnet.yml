@@ -23,5 +23,8 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
-    - name: Publish
-      run: dotnet nuget add source --username wedslk --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/wedslk/index.json"
+    - name: pack 
+      run: dotnet pack --configuration Release
+    - name: Publish wedslk.lib.infrastructure.service.database
+      run: dotnet nuget push "Service/Database/wedslk.lib.infrastructure.service.database/bin/Release/wedslk.lib.infrastructure.service.database.1.0.0.nupkg" --source "github"
+
