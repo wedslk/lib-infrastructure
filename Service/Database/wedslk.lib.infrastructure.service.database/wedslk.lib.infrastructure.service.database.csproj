@@ -1,7 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<PackageId>wedslk.lib.infrastructure.service.database</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>wedslk</Authors>
+		<Company>wedslk</Company>
+		<PackageDescription>wedslk.lib.infrastructure.service.database</PackageDescription>
+		<RepositoryUrl>https://github.com/wedslk/lib-infrastructure</RepositoryUrl>
+	</PropertyGroup>
 
 </Project>
